@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="C" />
+		<Option pch_mode="2" />
+		<Option compiler="ow" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\C" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="ow" />
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\C" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="ow" />
+				<Compiler>
+					<Add option="-ox" />
+					<Add option="-ot" />
+					<Add option="-oh" />
+					<Add option="-fp6" />
+					<Add option="-6r" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-w-" />
+		</Compiler>
+		<Unit filename="FFT.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="FFT.h" />
+		<Unit filename="LU.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="LU.h" />
+		<Unit filename="MonteCarlo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="MonteCarlo.h" />
+		<Unit filename="Random.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Random.h" />
+		<Unit filename="SOR.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SOR.h" />
+		<Unit filename="SparseCompRow.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SparseCompRow.h" />
+		<Unit filename="Stopwatch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Stopwatch.h" />
+		<Unit filename="array.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="array.h" />
+		<Unit filename="constants.h" />
+		<Unit filename="kernel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="kernel.h" />
+		<Unit filename="scimark2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="scimark2.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

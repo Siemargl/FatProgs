@@ -1,0 +1,74 @@
+# depslib dependency file v1.0
+1153858307 source:d:\_workplace\scimark\c\fft.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	"FFT.h"
+
+938548219 d:\_workplace\scimark\c\fft.h
+
+1153858307 source:d:\_workplace\scimark\c\lu.c
+	<math.h>
+	"LU.h"
+
+938548220 d:\_workplace\scimark\c\lu.h
+
+1153858307 source:d:\_workplace\scimark\c\montecarlo.c
+	"Random.h"
+
+938548220 d:\_workplace\scimark\c\random.h
+
+1153858307 source:d:\_workplace\scimark\c\random.c
+	<stdlib.h>
+	"Random.h"
+
+1153858307 source:d:\_workplace\scimark\c\sor.c
+	"SOR.h"
+
+938548220 d:\_workplace\scimark\c\sor.h
+
+1153858307 source:d:\_workplace\scimark\c\sparsecomprow.c
+
+1153858307 source:d:\_workplace\scimark\c\stopwatch.c
+	<stdlib.h>
+	"Stopwatch.h"
+
+938548221 d:\_workplace\scimark\c\stopwatch.h
+	<time.h>
+
+1153858307 source:d:\_workplace\scimark\c\array.c
+	<stdlib.h>
+	<stdio.h>
+	"array.h"
+
+938548221 d:\_workplace\scimark\c\array.h
+
+1153858307 source:d:\_workplace\scimark\c\kernel.c
+	<stdio.h>
+	<stdlib.h>
+	"LU.h"
+	"FFT.h"
+	"SOR.h"
+	"MonteCarlo.h"
+	"LU.h"
+	"Random.h"
+	"Stopwatch.h"
+	"SparseCompRow.h"
+	"array.h"
+
+938548220 d:\_workplace\scimark\c\montecarlo.h
+
+938548221 d:\_workplace\scimark\c\sparsecomprow.h
+
+1153858307 source:d:\_workplace\scimark\c\scimark2.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"Random.h"
+	"kernel.h"
+	"constants.h"
+
+938548221 d:\_workplace\scimark\c\kernel.h
+
+938548221 d:\_workplace\scimark\c\constants.h
+

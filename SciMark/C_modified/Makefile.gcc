@@ -1,0 +1,20 @@
+.SUFFIXES: .c .o
+
+.c.obj:
+	$(CC) $(CFLAGS) -c $<
+
+all: scimark2 
+
+CC = gcc 
+LDFLAGS = 
+#CFLAGS = -mfpmath=sse -march=native -O2
+CFLAGS = -mfpmath=387 -O0
+
+OBJS = FFT.o kernel.o Stopwatch.o Random.o SOR.o SparseCompRow.o \
+	array.o MonteCarlo.o LU.o 
+
+scimark2 : scimark2.o $(OBJS)
+	$(CC) $(CFLAGS) -o scimark2 scimark2.o $(OBJS) $(LDFLAGS) 
+
+clean:
+	del $(OBJS) scimark2

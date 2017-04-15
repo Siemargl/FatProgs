@@ -1,0 +1,1398 @@
+#include <stdio.h>
+/* Copyright (C) 1986-2001 by Digital Mars. $Revision: 1.1.1.2 $ */
+#if __SC__ || __RCC__
+#pragma once
+#endif
+
+#ifndef __STDIO_H
+#define __STDIO_H 1
+
+#if __cplusplus
+extern "C" {
+#endif
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#define _CRTAPI1 __cdecl
+#endif
+
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#define _CRTAPI2 __cdecl
+#endif
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#if defined(_WIN32) && defined(_DLL)
+#define _CRTIMP  __declspec(dllimport)
+#else
+#define _CRTIMP
+#endif
+#endif
+
+#if __OS2__ && __INTSIZE == 4
+#define __CLIB	__stdcall
+#else
+#define __CLIB	__cdecl
+#endif
+
+#if M_UNIX || M_XENIX || __NT__
+#define _NFILE	60
+#else
+#define _NFILE	40
+#endif
+
+
+#define SEEK_SET	0
+#define SEEK_CUR	1
+#define SEEK_END	2
+
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL 0
+#else
+#define NULL ((void *)0)
+#endif
+#endif
+
+#if __cplusplus
+#define __RESTRICT
+#else
+#define __RESTRICT restrict
+#endif
+
+#if M_UNIX || M_XENIX
+#define BUFSIZ		4096
+extern char * __cdecl _bufendtab[];
+#elif __INTSIZE == 4
+#define BUFSIZ		0x4000
+#else
+#define BUFSIZ		1024
+#endif
+
+#if __INTSIZE == 2 && (__SMALL__ || __MEDIUM__)
+#define BIGBUF		(20 * 1024)
+#endif
+
+#if _M_AMD64
+typedef unsigned long long size_t;
+#else
+typedef unsigned size_t;
+#endif
+
+#ifndef __STDC__
+
+#if !defined(_WCHAR_T_DEFINED)
+typedef unsigned short wchar_t;
+#define _WCHAR_T_DEFINED 1
+#endif
+
+typedef wchar_t wint_t;
+typedef wchar_t wctype_t;
+#endif
+
+#define EOF (-1)
+
+#ifndef __STDC__
+#define WEOF (wint_t) (0xFFFF)
+#endif
+
+#ifndef __FILE_DEFINED
+#pragma pack(1)
+#define __FILE_DEFINED 1
+typedef struct _iobuf
+{
+#if M_UNIX || M_XENIX
+	int	_cnt;
+	char	*_ptr;
+	char	*_base;
+	char	_flag;
+	char	_file;
+#define _bufsize(f) (_bufendtab[(f)->_file] - (f)->_base)
+#elif __OS2__ && __INTSIZE == 4
+	char	*_ptr;
+	int	_cnt;
+	char	*_base;
+	int	_flag;
+	int	_file;
+	int	_charbuf;
+	int	_bufsiz;
+	int	__tmpnum;
+#define _bufsize(f) ((f)->_bufsiz)
+#elif __NT__
+	char	*_ptr;
+	int	_cnt;
+	char	*_base;
+	int	_flag;
+	int	_file;
+	int	_charbuf;
+	int	_bufsiz;
+	int	__tmpnum;
+#define _bufsize(f) ((f)->_bufsiz)
+#else
+	char	*_ptr;
+	int	_cnt;
+	char	*_base;
+	int	_flag;
+	int	_file;
+	unsigned _bufsiz;
+#ifdef	BIGBUF
+	int	_seg;
+#endif
+#define _bufsize(f) ((f)->_bufsiz)
+#endif
+} FILE;
+#pragma pack()
+#endif
+
+#define _F_RDWR 0x0003
+#define _F_READ 0x0001
+#define _F_WRIT 0x0002
+#define _F_BUF  0x0004
+#define _F_LBUF 0x0008
+#define _F_ERR  0x0010
+#define _F_EOF  0x0020
+#define _F_BIN  0x0040
+#define _F_IN   0x0080
+#define _F_OUT  0x0100
+#define _F_TERM 0x0200
+
+#ifdef M_ELF
+#define _iob __iob
+#endif
+
+#if defined (_DLL)
+
+#define _iob ( _p_iob() )
+extern FILE * _p_iob(void);
+
+#else
+
+extern	FILE __cdecl _iob[_NFILE];
+
+#endif
+
+#define _IOREAD		1
+#define _IOWRT		2
+#define _IONBF		4
+#define _IOMYBUF	8
+#define _IOEOF		0x10
+#define _IOERR		0x20
+#define _IOLBF		0x40
+#define _IOSTRG         0x40
+#define _IORW		0x80
+#define _IOFBF		0
+#define _IOAPP		0x200
+#if M_UNIX || M_XENIX
+#define _IOTRAN		0
+#else
+#define _IOTRAN		0x100
+#ifdef	BIGBUF
+#define _IOBIGBUF	0x400
+#endif
+#endif
+
+#define stdin	(&_iob[0])
+#define stdout	(&_iob[1])
+#define stderr	(&_iob[2])
+
+#if M_UNIX || M_XENIX
+#define FOPEN_MAX	60
+#define FILENAME_MAX	255
+
+#if !__STDC__ || defined(_POSIX_SOURCE) || defined(_XOPEN_SOURCE)
+char * __cdecl ctermid(char *);
+#define L_ctermid 9
+#endif
+
+#else
+#ifndef __STDC__
+#ifndef __NT__
+#define stdaux	(&_iob[3])
+#define stdprn	(&_iob[4])
+#define _stdaux stdaux
+#define _stdprn stdprn
+#endif
+#endif
+#define FOPEN_MAX	20
+#if defined(_WIN32)
+#define FILENAME_MAX 256  /* 255 plus NULL */
+#else
+#define FILENAME_MAX	128
+#endif
+#endif
+
+#if M_UNIX || M_XENIX
+#define _P_tmpdir	"/usr/tmp/"
+#define _wP_tmpdir	L"/usr/tmp/"
+#else
+#define _P_tmpdir	"\\"
+#define _wP_tmpdir	L"\\"
+#endif
+#define P_tmpdir	_P_tmpdir
+#define wP_tmpdir	_wP_tmpdir
+#if !defined(_WIN32)
+#define L_tmpnam	sizeof(_P_tmpdir)+8
+#else
+#define L_tmpnam    sizeof(_P_tmpdir)+12
+#endif
+#define TMP_MAX		32767
+#define _SYS_OPEN       20
+#define SYS_OPEN        _SYS_OPEN
+
+typedef long fpos_t;
+
+typedef char *va_list;
+
+int	__CLIB fwide(FILE *stream, int mode);
+char *	__CLIB tmpnam(char *);
+FILE *	__CLIB fopen(const char *,const char *);
+FILE *	__CLIB _fsopen(const char *,const char *,int );
+FILE *	__CLIB freopen(const char *,const char *,FILE *);
+int	__CLIB fseek(FILE *,long,int);
+long	__CLIB ftell(FILE *);
+char *	__CLIB fgets(char *,int,FILE *);
+int	__CLIB fgetc(FILE *);
+int   __CLIB _fgetchar(void);
+int	__CLIB fflush(FILE *);
+int	__CLIB fclose(FILE *);
+int	__CLIB fputs(const char *,FILE *);
+int	__CLIB getc(FILE *);
+int	__CLIB getchar(void);
+char *	__CLIB gets(char *);
+int	__CLIB fputc(int,FILE *);
+int   __CLIB _fputchar(int);
+int	__CLIB putc(int,FILE *);
+int	__CLIB putchar(int);
+int	__CLIB puts(const char *);
+int	__CLIB ungetc(int,FILE *);
+size_t	__CLIB fread(void *,size_t,size_t,FILE *);
+size_t	__CLIB fwrite(const void *,size_t,size_t,FILE *);
+int	__cdecl printf(const char *,...);
+int	__cdecl fprintf(FILE *,const char *,...);
+int	__CLIB  vfprintf(FILE *,const char *,va_list);
+int	__CLIB  vprintf(const char *,va_list);
+int	__cdecl sprintf(char *,const char *,...);
+int	__CLIB  vsprintf(char *,const char *,va_list);
+int	__cdecl scanf(const char *,...);
+int	__cdecl fscanf(FILE *,const char *,...);
+int	__cdecl sscanf(const char *,const char *,...);
+int	__CLIB vsnprintf(char * __RESTRICT,size_t,const char * __RESTRICT,va_list);
+int	__CLIB vscanf(const char * __RESTRICT, va_list);
+int	__CLIB vfscanf(FILE * __RESTRICT, const char * __RESTRICT, va_list);
+int	__CLIB vsscanf(const char * __RESTRICT, const char * __RESTRICT, va_list);
+void	__CLIB setbuf(FILE *,char *);
+int	__CLIB setvbuf(FILE *,char *,int,size_t);
+int	__CLIB remove(const char *);
+int	__CLIB rename(const char *,const char *);
+void	__CLIB rewind(FILE *);
+void	__CLIB clearerr(FILE *);
+int	__CLIB feof(FILE *);
+int	__CLIB ferror(FILE *);
+void	__CLIB perror(const char *);
+int	__CLIB fgetpos(FILE *,fpos_t *);
+int	__CLIB fsetpos(FILE *,const fpos_t *);
+FILE *	__CLIB tmpfile(void);
+int	__CLIB _rmtmp(void);
+int     __CLIB _fillbuf(FILE *);
+int     __CLIB _flushbu(int, FILE *);
+/*#define _filbuf _fillbuf*/
+/*#define _flsbuf _flushbu*/
+
+int __CLIB getw(FILE *FHdl);
+#define _getw  getw
+int __CLIB putw(int Word, FILE *FilePtr);
+#define _putw putw
+
+#if __cplusplus
+inline int __CLIB getchar()		{ return getc(stdin);		}
+inline int __CLIB putchar(int c)	{ return putc(c,stdout);	}
+inline int __CLIB getc(FILE *fp)	{ return fgetc(fp);		}
+inline int __CLIB putc(int c,FILE *fp)	{ return fputc(c,fp);		}
+inline int __CLIB ferror(FILE *fp)	{ return fp->_flag&_IOERR;	}
+inline int __CLIB feof(FILE *fp)	{ return fp->_flag&_IOEOF;	}
+inline void __CLIB clearerr(FILE *fp)	{ fp->_flag &= ~(_IOERR|_IOEOF); }
+inline void __CLIB rewind(FILE *fp)	{ fseek(fp,0L,SEEK_SET); fp->_flag&=~_IOERR; }
+#else
+#define getchar()	getc(stdin)
+#define putchar(c)      putc(c,stdout)
+
+#if !defined(_WINDOWS)
+int __cdecl putch(int);
+#define _putch          putch
+#endif
+
+#define getc(fp)	fgetc(fp)
+#define putc(c,fp)	fputc((c),(fp))
+#define ferror(fp)	((fp)->_flag&_IOERR)
+#define feof(fp)	((fp)->_flag&_IOEOF)
+#define clearerr(fp)	((void)((fp)->_flag&=~(_IOERR|_IOEOF)))
+#define rewind(fp)	((void)(fseek(fp,0L,SEEK_SET),((fp)->_flag&=~_IOERR)))
+#endif
+
+#ifndef __STDC__
+#define fileno(fp)	((fp)->_file)
+#define _fileno(fp)     ((fp)->_file)
+
+#if M_UNIX || M_XENIX
+int	__cdecl pclose(FILE *fp);
+FILE *	__cdecl popen(const char *command,const char *t);
+#endif
+
+int     __CLIB unlink(const char *);
+#define _unlink unlink
+
+FILE *	__CLIB fdopen(int, const char *);
+int   __CLIB fgetchar(void);
+int   __CLIB fputchar(int);
+int	__CLIB fcloseall(void);
+long	__CLIB filesize(const char *);
+int	__CLIB flushall(void);
+int	__CLIB getch(void);
+int	__CLIB getche(void);
+int     __CLIB kbhit(void);
+char *  __CLIB tempnam (char *dir, char *pfx);
+int     __CLIB _snprintf(char *,size_t,const char *,...);
+int	__CLIB _vsnprintf(char *,size_t,const char *,va_list);
+#define _flushall flushall
+#define _fcloseall fcloseall
+#define _fdopen fdopen
+#define _tempnam tempnam
+#define _getche getche
+#define _getch getch
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+wchar_t * __CLIB _wtmpnam(wchar_t *);
+FILE * __CLIB _wfopen(const wchar_t *, const wchar_t *);
+FILE * __CLIB _wfsopen(const wchar_t *, const wchar_t *, int);
+FILE * __CLIB _wfreopen(const wchar_t *, const wchar_t *, FILE *);
+wchar_t * __CLIB fgetws(wchar_t *, int, FILE *);
+int __CLIB fputws(const wchar_t *, FILE *);
+wchar_t * __CLIB _getws(wchar_t *);
+int __CLIB _putws(const wchar_t *);
+int __CLIB wprintf(const wchar_t * __RESTRICT format, ...);
+int __CLIB fwprintf(FILE * __RESTRICT stream, const wchar_t * __RESTRICT format, ...);
+int __CLIB vwprintf(const wchar_t * __RESTRICT format, va_list arg);
+int __CLIB vfwprintf(FILE * __RESTRICT stream, const wchar_t * __RESTRICT format, va_list arg);
+int __CLIB swprintf(wchar_t * __RESTRICT s, size_t n, const wchar_t * __RESTRICT format, ...);
+int __CLIB _swprintf(wchar_t * __RESTRICT s, const wchar_t * __RESTRICT format, ...);
+int __CLIB _snwprintf(wchar_t *, size_t, const wchar_t *, ...);
+int __CLIB vswprintf(wchar_t * __RESTRICT s, size_t n, const wchar_t * __RESTRICT format, va_list arg);
+int __CLIB _vswprintf(wchar_t * __RESTRICT s, const wchar_t * __RESTRICT format, va_list arg);
+int __CLIB _vsnwprintf(wchar_t *, size_t, const wchar_t *, va_list);
+int __CLIB wscanf(const wchar_t * __RESTRICT format, ...);
+int __CLIB fwscanf(FILE * __RESTRICT stream, const wchar_t * __RESTRICT format, ...);
+int __CLIB swscanf(const wchar_t * __RESTRICT s, const wchar_t * __RESTRICT format, ...);
+int __CLIB _wremove(const wchar_t *);
+void __CLIB _wperror(const wchar_t *);
+FILE * __CLIB _wfdopen(int, const wchar_t *);
+wchar_t * __CLIB _wtempnam(wchar_t *, wchar_t *);
+#if M_UNIX || M_XENIX
+FILE * __CLIB _wpopen(const wchar_t *, const wchar_t *);
+#endif
+wint_t __CLIB fgetwc(FILE *);
+wint_t __CLIB _fgetwchar(void);
+wint_t __CLIB fputwc(wint_t, FILE *);
+wint_t __CLIB _fputwchar(wint_t);
+wint_t __CLIB getwc(FILE *);
+wint_t __CLIB getwchar(void);
+wint_t __CLIB putwc(wint_t, FILE *);
+wint_t __CLIB putwchar(wint_t);
+wint_t __CLIB ungetwc(wint_t, FILE *);
+#define getwchar()	fgetwc(stdin)
+#define putwchar(_c)	fputwc((_c),stdout)
+#define getwc(_stm)	fgetwc(_stm)
+#define putwc(_c,_stm)	fputwc(_c,_stm)
+#endif
+#endif
+
+#if __cplusplus
+}
+#endif
+
+#endif
+#include <stdlib.h>
+/* Copyright (C) 1986-2001 by Digital Mars. $Revision: 1.1.1.3 $ */
+#if __SC__ || __RCC__
+#pragma once
+#endif
+
+#ifndef __STDLIB_H
+#define __STDLIB_H 1
+
+#if __cplusplus
+extern "C" {
+#endif
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#define _CRTAPI1 __cdecl
+#endif
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#define _CRTAPI2 __cdecl
+#endif
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#if defined(_WIN32) && defined(_DLL)
+#define _CRTIMP  __declspec(dllimport)
+#else
+#define _CRTIMP
+#endif
+#endif
+
+#if __OS2__ && __INTSIZE == 4
+#define __CLIB __stdcall
+#else
+#define __CLIB __cdecl
+#endif
+
+#define EXIT_SUCCESS   0
+#define EXIT_FAILURE   1
+
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL 0
+#else
+#define NULL ((void *)0)
+#endif
+#endif
+
+#if _M_AMD64
+typedef unsigned long long size_t;
+#else
+typedef unsigned size_t;
+#endif
+
+//#ifndef __STDC__
+#if !defined(_WCHAR_T_DEFINED)
+typedef unsigned short wchar_t;
+#define _WCHAR_T_DEFINED 1
+#endif
+//#endif
+
+#pragma pack(__DEFALIGN)
+typedef struct _DIV { int  quot,rem; } div_t;
+typedef struct _LDIV { long quot,rem; } ldiv_t;
+#if __INTSIZE == 4
+typedef struct _LLDIV { long long quot,rem; } lldiv_t;
+#endif
+#pragma pack()
+
+#if !__STDC__
+
+#if !defined(ERANGE)
+#define ERANGE 34
+#endif
+
+#define HUGE_VAL       __inf
+
+#define RAND_MAX       32767
+
+#define _div_t _DIV
+#define _ldiv_t _LDIV
+
+#ifdef __NT__
+extern int __CLIB	__locale_mbsize;
+#define MB_CUR_MAX	__locale_mbsize
+#else
+#define MB_CUR_MAX	1
+#endif
+
+#endif
+
+#define _MAX_PATH   260
+#define _MAX_DRIVE  3
+#define _MAX_DIR    256
+#define _MAX_FNAME  256
+#define _MAX_EXT    256
+
+#if defined(_MT) || __cplusplus
+
+#if !__STDC__
+extern int *__CLIB _errno (void);
+#define errno (*_errno())
+#endif
+extern int *__CLIB __doserrno (void);
+#define _doserrno (*__doserrno ())
+
+#else
+
+#if !__STDC__
+extern int __CLIB errno;
+#endif
+extern int __CLIB _doserrno;
+
+#endif
+
+double __CLIB atof(const char *);
+#define _atold atof
+int    __CLIB atoi(const char *);
+long   __CLIB atol(const char *);
+double __CLIB strtod(const char *,char **);
+long double __CLIB strtold(const char *,char **);
+long   __CLIB strtol(const char *,char **,int);
+unsigned long  __CLIB strtoul(const char *,char **,int);
+#if __INTSIZE == 4
+long long   __CLIB atoll(const char *);
+long long   __CLIB strtoll(const char *,char **,int);
+unsigned long long __CLIB strtoull(const char *,char **,int);
+#endif
+int    __CLIB rand(void);
+void   __CLIB srand(unsigned);
+int    __CLIB random(int num);
+void    __CLIB randomize(void);
+_CRTIMP void * __CLIB calloc(size_t,size_t);
+_CRTIMP void   __CLIB free(void *);
+_CRTIMP void * __CLIB malloc(size_t);
+_CRTIMP void * __CLIB realloc(void *,size_t);
+void   __CLIB abort(void);
+int    __CLIB atexit(void (*)(void));
+void   __CLIB exit(int);
+void   __CLIB _Exit(int);
+void   __CLIB _exit(int);
+
+#pragma noreturn (abort)
+#pragma noreturn (_exit)
+#pragma noreturn (_Exit)
+
+_CRTIMP char * __CLIB getenv(const char *);
+int    __CLIB system(const char *);
+void * __CLIB bsearch(const void *,const void *,size_t,size_t,
+       int (__CLIB *)(const void *,const void *));
+void   __CLIB qsort(void *,size_t,size_t,
+       int (__CLIB *)(const void *,const void *));
+int    __CLIB abs(int);
+long   __CLIB labs(long);
+div_t  __CLIB div(int,int);
+ldiv_t __CLIB ldiv(long,long);
+#if __INTSIZE == 4
+long long   __CLIB llabs(long long);
+lldiv_t __CLIB lldiv(long long, long long);
+#endif
+int    __CLIB mblen(const char *, size_t);
+size_t __CLIB _mbstrlen(const char *);
+int    __CLIB mbtowc(wchar_t *, const char *, size_t);
+int    __CLIB wctomb(char *, wchar_t);
+size_t __CLIB mbstowcs(wchar_t *, const char *, size_t);
+size_t __CLIB wcstombs(char *, const wchar_t *, size_t);
+void   __CLIB perror(const char *);
+#ifndef toupper
+int    __CLIB toupper(int);
+#endif
+#ifndef tolower
+int    __CLIB tolower(int);
+#endif
+
+unsigned       __CLIB _rotl(unsigned,int);
+unsigned       __CLIB _rotr(unsigned,int);
+unsigned long  __CLIB _lrotl(unsigned long,int);
+unsigned long  __CLIB _lrotr(unsigned long,int);
+char * __CLIB _fullpath(char *buf,const char *path,size_t buflen);
+
+#if !__STDC__
+#define fullpath       _fullpath
+#endif
+
+extern int __CLIB sys_nerr;
+extern char * __CLIB sys_errlist[];
+#define _sys_nerr sys_nerr
+#define _sys_errlist sys_errlist
+
+#ifndef __STDC__
+
+#if __INTSIZE == 2
+int    __CLIB __far _fmblen(const char __far *,size_t);
+int    __CLIB __far _fmbtowc(wchar_t __far *,const char __far *,size_t);
+int    __CLIB __far _fwctomb(char __far *,wchar_t);
+size_t __CLIB __far _fmbstowcs(wchar_t __far *, const char __far *, size_t);
+size_t __CLIB __far _fwcstombs(char __far *, const wchar_t __far *, size_t);
+#else
+int    __CLIB _fmblen(const char __far *,size_t);
+int    __CLIB _fmbtowc(wchar_t __far *,const char __far *,size_t);
+int    __CLIB _fwctomb(char __far *,wchar_t);
+size_t __CLIB _fmbstowcs(wchar_t __far *, const char __far *, size_t);
+size_t __CLIB _fwcstombs(char __far *, const wchar_t __far *, size_t);
+unsigned long long __CLIB strtoull(const char *,char **,int);
+#endif
+
+#if __INTSIZE == 2
+extern char __far *__cdecl _pgmptr;
+#else
+extern char *__cdecl _pgmptr;
+extern wchar_t *__cdecl _wpgmptr;
+#endif
+
+extern unsigned int __cdecl _osver;
+#ifndef __NT__
+extern unsigned short __cdecl _psp;
+extern unsigned char __cdecl _osmajor;
+extern unsigned char __cdecl _osminor;
+#endif
+
+#ifdef _DLL
+extern int * __CLIB __p___argc(void);
+extern char *** __CLIB __p___argv(void);
+extern wchar_t *** __CLIB __p___wargv(void);
+#define __argc	(*__p___argc())
+#define __argv	(*__p___argv())
+#define __wargv	(*__p___wargv())
+#else
+extern int __cdecl __argc;
+extern char __cdecl ** __argv;
+extern wchar_t __cdecl ** __wargv;
+#endif
+
+#if defined (_WIN32)
+wchar_t ** __CLIB __wparsecmdline(const wchar_t *, int *);
+char ** __CLIB __parsecmdline(const char *, int *);
+#endif
+
+#if defined(_WINDOWS) || defined(__NT__)
+extern unsigned char __cdecl _winmajor;
+extern unsigned char __cdecl _winminor;
+extern unsigned int __cdecl _winver;
+#endif
+
+#define _DOS_MODE 0
+#define _OS2_MODE 1
+#define _WIN_MODE 2
+
+#if !__STDC__
+#define DOS_MODE _DOS_MODE
+#define OS2_MODE _OS2_MODE
+#define WIN_MODE _WIN_MODE
+#endif
+
+extern unsigned char __cdecl _osmode;
+
+#define _REAL_MODE 0
+#define _PROT_MODE 1
+
+extern unsigned char __cdecl _cpumode;
+
+extern int __cdecl _fmode;
+
+void __cdecl _splitpath(const char *, char *,char *, char *, char *);
+void __cdecl _makepath(char *, const char *,const char *, const char *, const char *);
+void __cdecl _searchenv(const char *filename, const char *varname, char *pathname);
+
+#include <heapstat.h>
+#define	_HEAPEMPTY	-1
+#define	_HEAPOK		-2
+#define	_HEAPBADBEGIN	-3
+#define	_HEAPBADNODE	-4
+#define	_HEAPEND	-5
+#define	_HEAPBADPTR	-6
+
+_CRTIMP int __cdecl _heapchk(void);
+_CRTIMP int __cdecl _heapset(unsigned);
+#if __INTSIZE == 2
+int __cdecl _heapadd(void __far *,size_t);
+#else
+int __cdecl _heapadd(void *,size_t);
+#endif
+int __cdecl _heapmin(void);
+
+#ifdef __NT__
+#define _expand realloc
+#else
+void * __cdecl _expand(void *,size_t);
+#endif
+
+_CRTIMP size_t __cdecl _msize(void *);
+
+#if __LARGE__ || __COMPACT__
+void * __cdecl _fmalloc(size_t);
+void * __cdecl _fcalloc(size_t,size_t);
+void * __cdecl _frealloc(void *,size_t);
+void __cdecl _ffree(void *);
+size_t __cdecl _fmsize(void *);
+unsigned long __cdecl coreleft(void);
+unsigned long __cdecl farcoreleft(void);
+#if _WINDOWS
+void __near * __cdecl _nmalloc(size_t);
+void __near * __cdecl _ncalloc(size_t,size_t);
+void __near * __cdecl _nrealloc(void __near *,size_t);
+void __cdecl _nfree(void __near *);
+size_t __cdecl _nmsize(void __near *);
+size_t __cdecl _memmax(void);
+size_t __cdecl _memavl(void);
+unsigned int __cdecl _freect(size_t);
+#endif
+#else
+void * __cdecl _nmalloc(size_t);
+void * __cdecl _ncalloc(size_t,size_t);
+void * __cdecl _nrealloc(void *,size_t);
+void __cdecl _nfree(void *);
+size_t __cdecl _nmsize(void *);
+size_t __cdecl _memmax(void);
+size_t __cdecl _memavl(void);
+unsigned int __cdecl _freect(size_t);
+unsigned __cdecl coreleft(void);
+unsigned long __cdecl farcoreleft(void);
+#if __INTSIZE == 2 || (!__NT__ && !__OS2__)
+void __far * __cdecl _fmalloc(size_t);
+void __far * __cdecl _fcalloc(size_t,size_t);
+void __far * __cdecl _frealloc(void __far *,size_t);
+void __cdecl _ffree(void __far *);
+size_t __cdecl _fmsize(void __far *);
+#endif
+#endif
+
+#if __INTSIZE == 2
+void __huge *_halloc (long, size_t);
+void _hfree (void __huge *);
+#endif
+
+char * __CLIB itoa(int,char *,int);
+char * __CLIB _itoa(int, char *,int);
+char * __CLIB ltoa(long, char *, int);
+char * __CLIB _ltoa(long, char *,int);
+char *  __CLIB ultoa(unsigned long, char *, int);
+char * __CLIB ecvt(double,int,int *,int *);
+char * __CLIB fcvt(double,int,int *,int *);
+char * __CLIB _fcvt(double,int,int *,int *);
+char * __CLIB gcvt(double,int,char *);
+void * __cdecl sbrk(size_t);
+void   __CLIB swab(char *,char *,size_t);
+float  __CLIB strtof(const char *,char **);
+#define _swab swab
+#define _ecvt ecvt
+#define _gcvt gcvt
+#if !_WIN32
+#define strtold        strtod
+#endif
+#define _strtold       strtold
+#define _ultoa ultoa
+#if _MSDOS
+void __ss *    __CLIB alloca(size_t);
+#else
+void *    __CLIB alloca(size_t);
+#endif
+#define _alloca alloca
+size_t __CLIB stackavail(void);
+size_t __CLIB _chkstack(void);
+#define _stackavail stackavail
+
+#if __INTSIZE == 4
+int __cdecl _fatexit (void (__cdecl *func)(void));
+typedef void (__cdecl * _fonexit_t)(void);
+_fonexit_t __cdecl _fonexit (_fonexit_t func);
+#else
+int __cdecl __far _fatexit (void (__cdecl __far *func)(void));
+typedef void (__cdecl __far * _fonexit_t)(void);
+_fonexit_t __cdecl __far _fonexit (_fonexit_t func);
+#endif
+
+typedef void (__cdecl * _onexit_t)(void);
+_onexit_t __cdecl _onexit (_onexit_t func);
+
+#ifndef __STDC__
+#define onexit _onexit
+#endif
+
+#if __INTSIZE == 2
+void __far * __far __CLIB __mallocf(size_t);
+void        __far __CLIB __freef(void __far *);
+#endif
+_CRTIMP int            __CLIB putenv(const char *);
+
+#define _putenv putenv
+
+/* Min and Max macros useful in both C and CPP */
+#define __max(a,b)            (((a) > (b)) ? (a) : (b))
+#define __min(a,b)            (((a) < (b)) ? (a) : (b))
+
+
+#ifndef __cplusplus
+
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+#endif
+
+extern int (__far __cdecl *_malloc_handler)(void);
+extern char * __cdecl _envptr;
+#ifdef _DLL
+_CRTIMP char ***__CLIB _p_environ (void);
+#define _environ (*_p_environ())
+#else
+extern char ** __cdecl _environ;
+#endif
+
+#define environ _environ
+
+#ifdef __NT__
+#define _aenvptr _envptr
+extern wchar_t * __cdecl _wenvptr;
+#ifdef _DLL
+_CRTIMP wchar_t ***__CLIB _p_wenviron (void);
+#define _wenviron (*_p_wenviron())
+#else
+extern wchar_t ** __cdecl _wenviron;
+#endif
+
+#define wenviron _wenviron
+#endif
+
+#if !(defined (_WINDOWS) || defined (__NT__) || defined (DOS386))
+extern int __CLIB _fileinfo;
+#endif
+
+#if M_UNIX || M_XENIX
+extern char * __cdecl optarg;
+extern int __cdecl optind;
+extern int __cdecl opterr;
+extern int __cdecl optopt;
+#endif
+
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+int __CLIB _wtoi(const wchar_t *);
+long __CLIB _wtol(const wchar_t *);
+//double __CLIB wcstod(const wchar_t *, wchar_t **);
+//long double __CLIB wcstold(const wchar_t *, wchar_t **);
+//long __CLIB wcstol(const wchar_t *, wchar_t **, int);
+//unsigned long __CLIB wcstoul(const wchar_t *, wchar_t **, int);
+//long long __CLIB wcstoll(const wchar_t *, wchar_t **, int);
+//unsigned long long __CLIB wcstoull(const wchar_t *, wchar_t **, int);
+_CRTIMP wchar_t * __CLIB _wgetenv(const wchar_t *);
+int __CLIB _wsystem(const wchar_t *);
+wchar_t * __CLIB _itow(int, wchar_t *, int);
+wchar_t * __CLIB _ltow(long, wchar_t *, int);
+wchar_t * __CLIB _ultow(unsigned long, wchar_t *, int);
+wchar_t * __CLIB _wfullpath(wchar_t *, const wchar_t *, size_t);
+void __CLIB _wmakepath(wchar_t *, const wchar_t *, const wchar_t *, const wchar_t *, const wchar_t *);
+void __CLIB _wperror(const wchar_t *);
+_CRTIMP int __CLIB _wputenv(const wchar_t *);
+void __CLIB _wsearchenv(const wchar_t *, const wchar_t *, wchar_t *);
+void __CLIB _wsplitpath(const wchar_t *, wchar_t *, wchar_t *, wchar_t *, wchar_t *);
+#define itow _itow
+#define ltow _ltow
+#define ultow _ultow
+#endif
+#endif
+
+#if __cplusplus
+}
+#endif
+
+#endif
+#include <string.h>
+// Copyright (C) 1986-2001 by Digital Mars.
+// www.digitalmars.com
+
+#if __DMC__ || __RCC__
+#pragma once
+#endif
+
+#ifndef __STRING_H
+#define __STRING_H 1
+
+#if __cplusplus
+extern "C" {
+#endif
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#define _CRTAPI1 __cdecl
+#endif
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#define _CRTAPI2 __cdecl
+#endif
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#if defined(_WIN32) && defined(_DLL)
+#define _CRTIMP  __declspec(dllimport)
+#else
+#define _CRTIMP
+#endif
+#endif
+
+#if _M_AMD64
+typedef unsigned long long size_t;
+#else
+typedef unsigned size_t;
+#endif
+
+#ifndef __STDC__
+#if !defined(_WCHAR_T_DEFINED)
+typedef unsigned short wchar_t;
+#define _WCHAR_T_DEFINED 1
+#endif
+#endif
+
+#define _NLSCMPERROR	2147483647
+
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL 0
+#else
+#define NULL ((void *)0)
+#endif
+#endif
+
+#if __cplusplus
+#define __RESTRICT
+#else
+#define __RESTRICT restrict
+#endif
+
+#if __OS2__ && __INTSIZE == 4
+#define __CLIB	__stdcall
+#else
+#define __CLIB	__cdecl
+#endif
+
+void *	__CLIB memcpy(void *,const void *,size_t);
+void *  __CLIB _inline_memcpy(void *,const void *,size_t);
+void *	__CLIB memmove(void *,const void *,size_t);
+char *	__CLIB strcpy(char *,const char *);
+char *	__CLIB _inline_strcpy(char *,const char *);
+char *	__CLIB strncpy(char *,const char *,size_t);
+char *	__CLIB strcat(char *,const char *);
+char *	__CLIB strncat(char *,const char *,size_t);
+int	__CLIB memcmp(const void *,const void *,size_t);
+int     __CLIB _inline_memcmp(const void *,const void *,size_t);
+int	__CLIB strcmp(const char *,const char *);
+int	__CLIB _inline_strcmp(const char *,const char *);
+int	__CLIB strcoll(const char *,const char *);
+int	__CLIB strncmp(const char *,const char *,size_t);
+size_t	__CLIB strxfrm(char *,const char *,size_t);
+size_t	__CLIB strcspn(const char *,const char *);
+size_t	__CLIB strspn(const char *,const char *);
+char *	__CLIB strtok(char *,const char *);
+void *	__CLIB memset(void *,int,size_t);
+char *	__CLIB strerror(int);
+size_t	__CLIB strlen(const char *);
+size_t	__CLIB _inline_strlen(const char *);
+
+#ifndef __STDC__
+/* Unicode string routines, these are in wchar.h as well */
+size_t __CLIB wcslen(const wchar_t *);
+_CRTIMP wchar_t * __CLIB wcscpy(wchar_t *, const wchar_t *);
+#ifdef __NT__
+wchar_t * __CLIB wmemcpy(wchar_t *,const wchar_t *,size_t);
+wchar_t * __CLIB wmemmove(wchar_t *,const wchar_t *,size_t);
+wchar_t * __CLIB wmemset(wchar_t *,wchar_t,size_t);
+wchar_t * __CLIB wcsncpy(wchar_t *, const wchar_t *, size_t);
+wchar_t * __CLIB wcscat(wchar_t *, const wchar_t *);
+wchar_t * __CLIB wcsncat(wchar_t *, const wchar_t *, size_t);
+int __CLIB wcscmp(const wchar_t *, const wchar_t *);
+int __CLIB wcsncmp(const wchar_t *, const wchar_t *, size_t);
+int __CLIB wcscoll(const wchar_t *, const wchar_t *);
+size_t __CLIB wcsxfrm(wchar_t *, const wchar_t *, size_t);
+size_t __CLIB wcscspn(const wchar_t *, const wchar_t *);
+size_t __CLIB wcsspn(const wchar_t *, const wchar_t *);
+wchar_t * __CLIB wcstok(wchar_t * __RESTRICT s1, const wchar_t * __RESTRICT s2, wchar_t ** __RESTRICT ptr);
+int __CLIB _wcsicoll(const wchar_t *, const wchar_t *);
+int __CLIB _wcsncoll(const wchar_t *, const wchar_t *, size_t);
+int __CLIB _wcsnicoll(const wchar_t *, const wchar_t *, size_t);
+int __CLIB _wcsicmp(const wchar_t *, const wchar_t *);
+_CRTIMP int __CLIB _wcsnicmp(const wchar_t *, const wchar_t *, size_t);
+_CRTIMP wchar_t * __CLIB _wcsdup(const wchar_t *);
+wchar_t * __CLIB _wcslwr(wchar_t *);
+wchar_t * __CLIB _wcsupr(wchar_t *);
+wchar_t * __CLIB _wcsnset(wchar_t *, wchar_t, size_t);
+wchar_t * __CLIB _wcsrev(wchar_t *);
+wchar_t * __CLIB _wcsset(wchar_t *, wchar_t);
+#define wcswcs	wcsstr
+#define wcsdup	_wcsdup
+#define wcsicmp	_wcsicmp
+#define wcsnicmp _wcsnicmp
+#define wcsnset	_wcsnset
+#define wcsrev	_wcsrev
+#define wcsset	_wcsset
+#define wcslwr	_wcslwr
+#define wcsupr	_wcsupr
+#define wcsicoll _wcsicoll
+#endif
+#endif
+
+int  *	__CLIB _memintset(int *, int, size_t);
+int	__CLIB memicmp(const void *,const void *,size_t);
+void *  __CLIB memccpy(void *,const void *,int,unsigned int);
+char *	__CLIB stpcpy(char *,const char *);
+int	__CLIB stricmp(const char *,const char *);
+int	__CLIB strcmpl(const char *,const char *); /* obsolete */
+int	__CLIB strnicmp(const char *, const char *, size_t);
+char *	__CLIB strdup(const char *);
+char *	__CLIB strlwr(char *);
+char *	__CLIB strupr(char *);
+char *	__CLIB strnset(char *,int,size_t);
+char *	__CLIB strrev(char *);
+char *	__CLIB strset(char *,int);
+void	__CLIB swab(char *,char *,size_t);
+void	__CLIB movedata(unsigned short srcseg,unsigned srcoff,unsigned short destseg,unsigned destoff,size_t nbytes);
+char *	__CLIB _strerror(const char *);
+int	__CLIB _stricoll(const char *, const char *);
+int	__CLIB _strncoll(const char *, const char *, size_t);
+int	__CLIB _strnicoll(const char *, const char *, size_t);
+
+#if __INTSIZE == 2
+void __far * __CLIB __far fmemccpy(void __far *,const void __far *,int,unsigned int);
+void __far * __CLIB __far fmemchr(const void __far *,int,size_t);
+int          __CLIB __far fmemcmp(const void __far *,const void __far *,size_t);
+int          __CLIB __far _fmemcmp(const void __far *,const void __far *,size_t);
+int          __CLIB       _inline_fmemcmp(const void __far *,const void __far *,size_t);
+void __far * __CLIB __far fmemcpy(void __far *,const void __far *,size_t);
+void __far * __CLIB __far _fmemcpy(void __far *,const void __far *,size_t);
+void __far * __CLIB       _inline_fmemcpy(void __far *,const void __far *,size_t);
+int          __CLIB __far fmemicmp(const void __far *,const void __far *,size_t);
+void __far * __CLIB __far fmemmove(void __far *,const void __far *,size_t);
+void __far * __CLIB __far _fmemmove(void __far *,const void __far *,size_t);
+void __far * __CLIB __far fmemset(void __far *,int,size_t);
+char __far * __CLIB __far fstrcat(char __far *,const char __far*);
+char __far * __CLIB __far fstrchr(const char __far *,int);
+char __far * __CLIB __far _fstrchr(const char __far *,int);
+int	     __CLIB __far fstrcmp(const char __far *,const char __far *);
+int	     __CLIB __far _fstrcmp(const char __far *,const char __far *);
+int	     __CLIB       _inline_fstrcmp(const char __far *,const char __far *);
+char __far * __CLIB __far fstrcpy(char __far *,const char __far *);
+char __far * __CLIB __far _fstrcpy(char __far *,const char __far *);
+char __far * __CLIB       _inline_fstrcpy(char __far *,const char __far *);
+size_t	     __CLIB __far fstrcspn(const char __far *,const char __far *);
+char __far * __CLIB __far fstrdup(const char __far *);
+char __near * __CLIB __far _nstrdup(const char __far *);
+int	     __CLIB __far fstricmp(const char __far *,const char __far *);
+size_t	     __CLIB __far fstrlen(const char __far *);
+size_t	     __CLIB       _inline_fstrlen(const char __far *);
+size_t	     __CLIB __far _fstrlen(const char __far *);
+char __far * __CLIB __far fstrlwr(char __far *);
+char __far * __CLIB __far fstrncat(char __far *,const char __far *,size_t);
+int	     __CLIB __far fstrncmp(const char __far *,const char __far *,size_t);
+char __far * __CLIB __far fstrncpy(char __far *,const char __far *,size_t);
+int	     __CLIB __far fstrnicmp(const char __far *, const char __far *, size_t);
+char __far * __CLIB __far fstrnset(char __far *,int,size_t);
+char __far * __CLIB __far fstrpbrk(const char __far *,const char __far *);
+char __far * __CLIB __far fstrrchr(const char __far *,int);
+char __far * __CLIB __far fstrrev(char __far *);
+char __far * __CLIB __far fstrset(char __far *,int);
+size_t	     __CLIB __far fstrspn(const char __far *,const char __far *);
+char __far * __CLIB __far fstrstr(const char __far *,const char __far *);
+char __far * __CLIB __far fstrtok(char __far *,const char __far *);
+char __far * __CLIB __far _fstrtok(char __far *,const char __far *);
+char __far * __CLIB __far fstrupr(char __far *);
+#endif
+
+#ifndef __NT__
+#define strcoll         strcmp
+#define _stricoll	stricmp
+#define _strncoll	strncmp
+#define _strnicoll	strnicmp
+#endif
+
+#define strncmpl        strnicmp
+
+#if !__STDC__
+#define _stricmp stricmp
+#define strcmpi stricmp
+#define _strcmpi stricmp
+#define movmem(src,dest,len) ((void)memmove(dest,src,len))
+#define setmem(dest,len,chr) ((void)memset(dest,chr,len))
+#define strncmpi strnicmp
+#define _strnicmp strnicmp
+#define _movedata movedata
+int	__CLIB _memicmp(const void *,const void *,size_t);
+#define _memccpy memccpy
+char *	__CLIB _strdup(const char *);
+#define _strlwr strlwr
+#define _strnset strnset
+char *	__CLIB _strrev(char *);
+#define _strset strset
+#define _strupr strupr
+#define _swab swab
+
+#if __INTSIZE == 2
+#define _fmemicmp fmemicmp
+#define _fmemccpy fmemccpy
+#define _fmemcpy(x,y,n)		_inline_fmemcpy(x,y,n)
+#define fmemcpy(x,y,n)		_inline_fmemcpy(x,y,n)
+#define _fmemchr fmemchr
+#define _fmemset fmemset
+#define _fstrcat fstrcat
+#define _fstrcat fstrcat
+#define _fstrcspn fstrcspn
+#define _fstrdup fstrdup
+#define _fstricmp fstricmp
+#define _fstrcmpl fstricmp
+#define _fstrlwr fstrlwr
+#define _fstrncat fstrncat
+#define _fstrncmp fstrncmp
+#define _fstrnicmp fstrnicmp
+#define _fstrncpy fstrncpy
+#define _fstrnset fstrnset
+#define _fstrpbrk fstrpbrk
+#define _fstrrchr fstrrchr
+#define _fstrrev fstrrev
+#define _fstrset fstrset
+#define _fstrspn fstrspn
+#define _fstrstr fstrstr
+#define _fstrupr fstrupr
+#define _nmemicmp nmemicmp
+
+#if !__LARGE__
+#define _fstrcmp(x,y)		_inline_fstrcmp(x,y)
+#define fstrcmp(x,y)		_inline_fstrcmp(x,y)
+#define _fstrcpy(x,y)		_inline_fstrcpy(x,y)
+#define fstrcpy(x,y)		_inline_fstrcpy(x,y)
+#define _fstrlen(s)		_inline_fstrlen(s)
+#define fstrlen(s)		_inline_fstrlen(s)
+#endif
+
+#endif
+#endif
+
+#if !__STDC__
+extern int __CLIB sys_nerr;
+extern char * __CLIB sys_errlist[];
+#endif
+
+#if __cplusplus
+}
+#endif
+
+#if __STDC_VERSION__ >= 199901L
+
+char *	__CLIB strchr(const char *,int);
+char *	__CLIB strrchr(const char *,int);
+char *	__CLIB strpbrk(const char *,const char *);
+char *	__CLIB strstr(const char *,const char *);
+void *	__CLIB memchr(const void *,int,size_t);
+
+#ifndef __STDC__
+_CRTIMP wchar_t * __CLIB wcschr(const wchar_t *, wchar_t);
+wchar_t * __CLIB wcsrchr(const wchar_t *, wchar_t);
+wchar_t * __CLIB wcspbrk(const wchar_t *, const wchar_t *);
+wchar_t * __CLIB wcsstr(const wchar_t *, const wchar_t *);
+wchar_t * __CLIB wmemchr(const wchar_t *,wchar_t,size_t);
+#endif
+
+#elif __cplusplus
+
+extern "C" {
+char *	__CLIB strchr(char *,int);
+char *	__CLIB strrchr(char *,int);
+char *	__CLIB strpbrk(char *,const char *);
+char *	__CLIB strstr(char *,const char *);
+void *	__CLIB memchr(void *,int,size_t);
+
+#ifndef __STDC__
+_CRTIMP wchar_t * __CLIB wcschr(wchar_t *, wchar_t);
+wchar_t * __CLIB wcsrchr(wchar_t *, wchar_t);
+wchar_t * __CLIB wcspbrk(wchar_t *, const wchar_t *);
+wchar_t * __CLIB wcsstr(wchar_t *, const wchar_t *);
+wchar_t * __CLIB wmemchr(wchar_t *,wchar_t,size_t);
+#endif
+}
+
+extern "C++" {
+inline const char *strchr(const char *s, int n) { return strchr(const_cast<char *>(s), n); }
+inline const char *strrchr(const char *s, int n) { return strrchr(const_cast<char *>(s), n); }
+inline const char *strpbrk(const char *s1,const char *s2) { return strpbrk(const_cast<char *>(s1),s2); }
+inline const char *strstr(const char *s1,const char *s2) { return strstr(const_cast<char *>(s1), s2); }
+inline const void *memchr(const void *s, int c, size_t n) { return memchr(const_cast<void *>(s), c, n); }
+
+#ifndef __WCS_INLINE
+#define __WCS_INLINE
+inline const wchar_t *wcschr(const wchar_t *s, wchar_t c) { return wcschr(const_cast<wchar_t *>(s), c); }
+inline const wchar_t *wcsrchr(const wchar_t *s, wchar_t c) { return wcsrchr(const_cast<wchar_t *>(s), c); }
+inline const wchar_t *wcspbrk(const wchar_t *s1,const wchar_t *s2) { return wcspbrk(const_cast<wchar_t *>(s1),s2); }
+inline const wchar_t *wcswcs(const wchar_t *s1,const wchar_t *s2) { return wcswcs(const_cast<wchar_t *>(s1), s2); }
+inline const void *wmemchr(const void *s, wchar_t c, size_t n) { return wmemchr(const_cast<void *>(s), c, n); }
+#endif
+}
+
+#else
+
+char *	__CLIB strchr(char *,int);
+char *	__CLIB strrchr(char *,int);
+char *	__CLIB strpbrk(char *,const char *);
+char *	__CLIB strstr(char *,const char *);
+void *	__CLIB memchr(void *,int,size_t);
+
+#ifndef __STDC__
+_CRTIMP wchar_t * __CLIB wcschr(wchar_t *, wchar_t);
+wchar_t * __CLIB wcsrchr(wchar_t *, wchar_t);
+wchar_t * __CLIB wcspbrk(wchar_t *, const wchar_t *);
+wchar_t * __CLIB wcsstr(wchar_t *, const wchar_t *);
+wchar_t * __CLIB wmemchr(wchar_t *,wchar_t,size_t);
+#endif
+
+#endif
+
+#endif
+
+#include "Random.h"
+typedef struct
+{
+  int m[17];                        
+  int seed;                             
+  int i;                                /* originally = 4 */
+  int j;                                /* originally =  16 */
+  int /*boolean*/ haveRange;            /* = false; */
+  double left;                          /*= 0.0; */
+  double right;                         /* = 1.0; */
+  double width;                         /* = 1.0; */
+}
+Random_struct, *Random;
+
+Random new_Random_seed(int seed);
+double Random_nextDouble(Random R);
+void Random_delete(Random R);
+double *RandomVector(int N, Random R);
+double **RandomMatrix(int M, int N, Random R);
+#include "kernel.h"
+#ifndef KERNEL_H
+#define KERNEL_H
+
+double kernel_measureFFT( int FFT_size, double min_time, Random R);
+double kernel_measureSOR( int SOR_size, double min_time, Random R);
+double kernel_measureMonteCarlo( double min_time, Random R);
+double kernel_measureSparseMatMult(int Sparse_size_N,
+    int Sparse_size_nz, double min_time, Random R);
+double kernel_measureLU( int LU_size, double min_time, Random R);
+
+#endif
+#include "constants.h"
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
+
+     const  double RESOLUTION_DEFAULT = 2.0;  /* secs (normally 2.0) */
+     const  int RANDOM_SEED = 101010;
+
+    /* default: small (cache-contained) problem sizes */
+
+     const  int FFT_SIZE = 1024;  /* must be a power of two */
+     const  int SOR_SIZE =100; /* NxN grid */
+     const  int SPARSE_SIZE_M = 1000;
+     const  int SPARSE_SIZE_nz = 5000;
+     const  int LU_SIZE = 100;
+
+    /* large (out-of-cache) problem sizes */
+
+     const  int LG_FFT_SIZE = 1048576;  /* must be a power of two */
+     const  int LG_SOR_SIZE =1000;  /*  NxN grid  */
+     const  int LG_SPARSE_SIZE_M = 100000;
+     const  int LG_SPARSE_SIZE_nz =1000000;
+     const  int LG_LU_SIZE = 1000;
+
+    /* tiny problem sizes (used to mainly to preload network classes     */
+    /*                     for applet, so that network download times    */
+    /*                     are factored out of benchmark.)               */
+    /*                                                                   */
+     const  int TINY_FFT_SIZE = 16;  /* must be a power of two */
+     const  int TINY_SOR_SIZE =10; /* NxN grid */
+     const  int TINY_SPARSE_SIZE_M = 10;
+     const  int TINY_SPARSE_SIZE_N = 10;
+     const  int TINY_SPARSE_SIZE_nz = 50;
+     const  int TINY_LU_SIZE = 10;
+
+#endif
+
+
+void print_banner(void);
+
+int main(int argc, char *argv[])
+{
+        /* default to the (small) cache-contained version */
+
+        double min_time = RESOLUTION_DEFAULT;
+
+        int FFT_size = FFT_SIZE;
+        int SOR_size =  SOR_SIZE;
+        int Sparse_size_M = SPARSE_SIZE_M;
+        int Sparse_size_nz = SPARSE_SIZE_nz;
+        int LU_size = LU_SIZE;
+
+
+        /* run the benchmark */
+
+        double res[6] = {0.0};
+        Random R = new_Random_seed(RANDOM_SEED);
+
+
+        if (argc > 1)
+        {
+			int current_arg = 1;
+
+			if (strcmp(argv[1], "-help")==0  ||
+					strcmp(argv[1], "-h") == 0)
+			{
+				fprintf(stderr, "Usage: [-large] [minimum_time]\n");
+				exit(0);
+			}
+
+			if (strcmp(argv[1], "-large")==0)
+			{
+				FFT_size = LG_FFT_SIZE;
+				SOR_size = LG_SOR_SIZE;
+				Sparse_size_M = LG_SPARSE_SIZE_M;
+				Sparse_size_nz = LG_SPARSE_SIZE_nz;
+				LU_size = LG_LU_SIZE;
+
+				current_arg++;
+			}
+
+			if (current_arg < argc)
+			{
+				min_time = atof(argv[current_arg]);
+			}
+			
+        }
+
+	
+		print_banner();
+		printf("Using %10.2f seconds min time per kenel.\n", min_time);
+
+        res[1] = kernel_measureFFT( FFT_size, min_time, R);   
+        res[2] = kernel_measureSOR( SOR_size, min_time, R);   
+        res[3] = kernel_measureMonteCarlo(min_time, R); 
+        res[4] = kernel_measureSparseMatMult( Sparse_size_M, 
+                Sparse_size_nz, min_time, R);           
+        res[5] = kernel_measureLU( LU_size, min_time, R);  
+
+
+
+        res[0] = (res[1] + res[2] + res[3] + res[4] + res[5]) / 5;
+
+        /* print out results  */
+        printf("Composite Score:        %8.2f\n" ,res[0]);
+        printf("FFT             Mflops: %8.2f    (N=%d)\n", res[1], FFT_size);
+        printf("SOR             Mflops: %8.2f    (%d x %d)\n", 		
+				res[2], SOR_size, SOR_size);
+        printf("MonteCarlo:     Mflops: %8.2f\n", res[3]);
+        printf("Sparse matmult  Mflops: %8.2f    (N=%d, nz=%d)\n", res[4], 
+					Sparse_size_M, Sparse_size_nz);
+        printf("LU              Mflops: %8.2f    (M=%d, N=%d)\n", res[5],
+				LU_size, LU_size);
+
+
+        Random_delete(R);
+
+        return 0;
+  
+}
+
+void print_banner()
+{
+ printf("**                                                              **\n");
+ printf("** SciMark2 Numeric Benchmark, see http://math.nist.gov/scimark **\n");
+ printf("** for details. (Results can be submitted to pozo@nist.gov)     **\n");
+ printf("**                                                              **\n");
+}
