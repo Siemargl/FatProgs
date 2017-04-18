@@ -1,0 +1,4 @@
+D:\VSProjects\_pl_benchmark\FatProgs\PHP\Mandelbrot\bin\Release\Mandelbrot.exe.config
+D:\VSProjects\_pl_benchmark\FatProgs\PHP\Mandelbrot\bin\Release\Mandelbrot.exe
+D:\VSProjects\_pl_benchmark\FatProgs\PHP\Mandelbrot\obj\Release\Mandelbrot.csprojResolveAssemblyReference.cache
+D:\VSProjects\_pl_benchmark\FatProgs\PHP\Mandelbrot\obj\Release\Mandelbrot.exe
